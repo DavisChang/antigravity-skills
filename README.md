@@ -1,0 +1,141 @@
+# Antigravity Skills
+
+A collection of custom skills for the Antigravity AI agent, designed to extend agent capabilities for specialized tasks.
+
+## Overview
+
+This repository contains reusable skills that enable the Antigravity agent to perform complex, domain-specific tasks. Each skill is a self-contained package with instructions, helper scripts, and resources.
+
+## Available Skills
+
+### 1. create-skill
+**Location**: `.agent/skills/create-skill/`
+
+A meta-skill for creating new Antigravity skills following best practices.
+
+**Use when**: You need to extend agent capabilities by creating a new skill.
+
+**Features**:
+- TDD (Test-Driven Development) workflow for skill creation
+- Claude Search Optimization (CSO) guidelines
+- Comprehensive skill scaffolding template
+- Quality checklist for skill validation
+
+**Quick Start**:
+```
+Ask the agent: "Create a new skill for [your task]"
+```
+
+### 2. medium-tech-digest
+**Location**: `.agent/skills/medium-tech-digest/`
+
+Automated weekly digest of top tech articles from Medium.
+
+**Use when**: You want a curated summary of recent AI and tech articles.
+
+**Features**:
+- Searches Medium for articles in 5 categories:
+  - Core AI & Technical Breakthroughs
+  - Frontend/Backend + AI Integration
+  - New Libraries & Tools
+  - Cross-Domain AI Applications
+  - Technical Architecture & Innovations
+- Reads full article content for accurate summarization
+- Generates bilingual reports (Traditional Chinese + English)
+- Archives reports in timestamped folders
+- Optional email delivery via SMTP
+
+**Quick Start**:
+```
+Ask the agent: "Run the Medium tech digest"
+```
+
+**Output**: `medium_digest_output/medium_digest_<YYYY-MM-DD>/digest.md`
+
+## Repository Structure
+
+```
+antigravity-skills/
+├── .agent/
+│   └── skills/
+│       ├── create-skill/
+│       │   └── SKILL.md
+│       └── medium-tech-digest/
+│           ├── SKILL.md
+│           └── scripts/
+│               └── send_email_template.py
+└── medium_digest_output/
+    ├── medium_digest_2026-02-05/
+    │   └── digest.md
+    └── medium_digest_2026-02-09/
+        └── digest.md
+```
+
+## How Skills Work
+
+1. **Discovery**: The Antigravity agent scans `.agent/skills/` and loads available skills
+2. **Activation**: When a task matches a skill's description, the agent reads the full `SKILL.md`
+3. **Execution**: The agent follows the skill's instructions to complete the task
+
+## Creating New Skills
+
+Use the `create-skill` skill to generate new skills:
+
+1. Ask the agent to create a skill for your specific use case
+2. The agent will guide you through:
+   - Naming the skill
+   - Defining triggers (when to use it)
+   - Writing instructions
+   - Adding helper scripts (optional)
+
+## Skill Anatomy
+
+Each skill requires a `SKILL.md` file with:
+
+```yaml
+---
+name: skill-name
+description: Use when [specific triggering conditions]
+---
+
+# Skill Name
+
+## Overview
+[What this skill does]
+
+## When to Use
+- [Trigger A]
+- [Trigger B]
+
+## Workflow
+[Step-by-step instructions]
+
+## Quick Reference
+[Tables, commands, or key information]
+```
+
+## Best Practices
+
+1. **Clear Triggers**: Skill descriptions should focus on *when* to use them, not *what* they do
+2. **Keyword Rich**: Include error messages, symptoms, and tool names for better discoverability
+3. **Self-Contained**: Skills should include all necessary context and instructions
+4. **Tested**: Verify skills work with real scenarios before committing
+
+## Contributing
+
+To add a new skill to this repository:
+
+1. Create a new folder in `.agent/skills/`
+2. Add a `SKILL.md` file following the template
+3. (Optional) Add helper scripts in a `scripts/` subdirectory
+4. Test the skill with the Antigravity agent
+5. Commit and push to the repository
+
+## Resources
+
+- [Antigravity Documentation](https://github.com/obra/superpowers) (inspiration and reference)
+- [Writing Skills Guide](https://github.com/obra/superpowers/tree/main/skills/writing-skills)
+
+## License
+
+MIT License - feel free to use and modify these skills for your own projects.
