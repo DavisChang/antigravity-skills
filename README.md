@@ -34,15 +34,9 @@ Automated weekly digest of top tech articles from Medium.
 **Use when**: You want a curated summary of recent AI and tech articles.
 
 **Features**:
-- Searches Medium for articles in 5 categories:
-  - Core AI & Technical Breakthroughs
-  - Frontend/Backend + AI Integration
-  - New Libraries & Tools
-  - Cross-Domain AI Applications
-  - Technical Architecture & Innovations
+- Searches Medium for articles in 5 categories
 - Reads full article content for accurate summarization
 - Generates bilingual reports (Traditional Chinese + English)
-- Archives reports in timestamped folders
 - Optional email delivery via SMTP
 
 **Quick Start**:
@@ -52,23 +46,63 @@ Ask the agent: "Run the Medium tech digest"
 
 **Output**: `medium_digest_output/medium_digest_<YYYY-MM-DD>/digest.md`
 
+### 3. analyze-repo-wiki
+**Location**: `.agent/skills/analyze-repo-wiki/`
+
+Generate structured wiki documentation for any Git repository.
+
+**Use when**: You need to analyze a codebase, generate documentation, or onboard onto an unfamiliar repo.
+
+**Features**:
+- Automated tech stack detection and entry point identification
+- Generates 6-10 specialized wiki pages (Architecture, API, Data Layer, etc.)
+- Produces Mermaid diagrams for visualization
+- Built-in citation system referencing source files
+
+**Quick Start**:
+```
+Ask the agent: "Analyze this repo and generate a wiki"
+```
+
+### 4. security-audit
+**Location**: `.agent/skills/security-audit/`
+
+Comprehensive multi-platform security audits with actionable reports.
+
+**Use when**: You need a code security review, vulnerability scan, or penetration test preparation.
+
+**Features**:
+- Multi-platform support: SPA, Backend API, Desktop (Electron), AI/LLM, Containers
+- Threat modeling using STRIDE framework
+- Systematic scanning for hardcoded secrets and dangerous APIs
+- Self-updating intelligence from 9+ security advisory sources
+
+**Quick Start**:
+```
+Ask the agent: "Perform a security audit on this project"
+```
+
 ## Repository Structure
 
 ```
 antigravity-skills/
 ├── .agent/
 │   └── skills/
+│       ├── analyze-repo-wiki/
+│       │   ├── SKILL.md
+│       │   ├── README.md
+│       │   └── references/
 │       ├── create-skill/
 │       │   └── SKILL.md
-│       └── medium-tech-digest/
+│       ├── medium-tech-digest/
+│       │   ├── SKILL.md
+│       │   └── scripts/
+│       └── security-audit/
 │           ├── SKILL.md
-│           └── scripts/
-│               └── send_email_template.py
+│           ├── scripts/
+│           └── references/
 └── medium_digest_output/
-    ├── medium_digest_2026-02-05/
-    │   └── digest.md
-    └── medium_digest_2026-02-09/
-        └── digest.md
+    └── ...
 ```
 
 ## How Skills Work
