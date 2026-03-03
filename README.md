@@ -64,7 +64,44 @@ Generate structured wiki documentation for any Git repository.
 Ask the agent: "Analyze this repo and generate a wiki"
 ```
 
-### 4. security-audit
+### 4. ai-agent-observability
+**Location**: `.agent/skills/ai-agent-observability/`
+
+Operational guide for building observable, evaluable, and iteratively improvable AI agent systems.
+
+**Use when**: You're developing AI agents, adding observability to LLM pipelines, designing agent evaluation, or debugging non-deterministic behavior.
+
+**Features**:
+- Three-primitive trace design (Run / Trace / Thread)
+- Guardrail templates with `max_steps`, `max_tool_calls`, timeout enforcement
+- Three-layer evaluation strategy (unit, end-to-end, multi-turn)
+- Production → offline feedback loop for continuous improvement
+- Online evaluators (loop detector, tool error rate, refusal rate)
+
+**Quick Start**:
+```
+Ask the agent: "Help me add observability to my AI agent"
+```
+
+### 5. arch-design-review
+**Location**: `.agent/skills/arch-design-review/`
+
+Facilitates structured system architecture design discussions using Socratic dialogue across seven dimensions.
+
+**Use when**: You want to review a system design, discuss architecture tradeoffs, prepare for a design review meeting, or evaluate a new system proposal.
+
+**Features**:
+- Seven-dimension framework: Requirements, Traffic, Data, Reliability, Security, Architecture, Cost
+- Socratic facilitation — guides the team to surface blind spots rather than dictating answers
+- Structured output template with assumptions, SLOs, risk register, ADRs, and rollout plan
+- Techniques for fault injection, counterfactual thinking, and cost probing
+
+**Quick Start**:
+```
+Ask the agent: "Let's do an architecture design review for [your system]"
+```
+
+### 6. security-audit
 **Location**: `.agent/skills/security-audit/`
 
 Comprehensive multi-platform security audits with actionable reports.
@@ -88,10 +125,19 @@ Ask the agent: "Perform a security audit on this project"
 antigravity-skills/
 ├── .agent/
 │   └── skills/
+│       ├── ai-agent-observability/
+│       │   ├── SKILL.md
+│       │   ├── checklist.md
+│       │   ├── playbook.md
+│       │   ├── README.md
+│       │   └── README_TW.md
 │       ├── analyze-repo-wiki/
 │       │   ├── SKILL.md
 │       │   ├── README.md
 │       │   └── references/
+│       ├── arch-design-review/
+│       │   ├── SKILL.md
+│       │   └── dimensions.md
 │       ├── create-skill/
 │       │   └── SKILL.md
 │       ├── medium-tech-digest/
