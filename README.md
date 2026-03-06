@@ -119,6 +119,24 @@ Comprehensive multi-platform security audits with actionable reports.
 Ask the agent: "Perform a security audit on this project"
 ```
 
+### 7. security-defense
+**Location**: `.agent/skills/security-defense/`
+
+Perform endpoint security testing, penetration testing, defense analysis, and EU CRA product compliance assessment.
+
+**Use when**: You need penetration testing, endpoint security check, service security scan, attack surface analysis, or CRA compliance.
+
+**Features**:
+- Endpoint/Service Security Testing (API, web, IP/port, infrastructure)
+- Multi-phase structured testing (recon, frontend, backend, auth, infra)
+- EU CRA Product Compliance workflow (classification, conformity assessment)
+- Top 10 common findings and Banking sector attack-defense matrix
+
+**Quick Start**:
+```
+Ask the agent: "Perform an endpoint security test on this project"
+```
+
 ## Repository Structure
 
 ```
@@ -143,9 +161,12 @@ antigravity-skills/
 │       ├── medium-tech-digest/
 │       │   ├── SKILL.md
 │       │   └── scripts/
-│       └── security-audit/
+│       ├── security-audit/
+│       │   ├── SKILL.md
+│       │   ├── scripts/
+│       │   └── references/
+│       └── security-defense/
 │           ├── SKILL.md
-│           ├── scripts/
 │           └── references/
 └── medium_digest_output/
     └── ...
