@@ -1,52 +1,135 @@
-# Medium Tech Digest Skill
+# Medium Tech Digest
 
-An automated agent skill for fetching, summarizing, and delivering the latest technical insights from Medium.
+An agent skill for fetching, summarizing, and delivering a weekly digest of the best technical articles from Medium.
+
+---
 
 ## Overview
 
-The `medium-tech-digest` skill enables the Antigravity agent to act as a personalized tech curator. It scans Medium for high-quality technical articles published within the last 7 days, generates bilingual summaries, and can deliver the final report via email.
+`medium-tech-digest` turns the Antigravity agent into a personalized tech curator. It scans Medium for high-quality technical articles published within the last 7 days, generates bilingual summaries in Traditional Chinese and English, archives the report locally, and can optionally deliver it via email.
 
-## Key Features
+---
 
-- **Curated Technical Categories**:
-  - **Core AI & Technical Breakthroughs**: LLMs, Transformers, RAG, GenAI.
-  - **Frontend/Backend + AI Integration**: Vercel SDK, LangChain, React AI.
-  - **New Libraries & Tools**: Latest releases and programming tools.
-  - **Cross-Domain AI Applications**: AI in Art, Biology, Finance, Science, etc.
-  - **Architecture & Innovations**: Deep dives into systems and technical design.
-- **Deep Research**: Uses full-text extraction (not just snippets) for accurate summarization.
-- **Bilingual Reports**: Automatically generates summaries in both Traditional Chinese (繁體中文) and English.
-- **Automated Archiving**: Saves reports in a structured `medium_digest_output/` directory with timestamped subfolders.
-- **Email Delivery**: Supports optional delivery via SMTP with a customizable email script.
+## Features
+
+| Feature | Description |
+|:---|:---|
+| **5 Curated Categories** | Core AI & LLMs · Dev+AI Integration · New Libraries & Tools · Architecture & Systems · Cross-Domain AI |
+| **Full-text Summarization** | Reads complete article content — not just search snippets — for accurate, structured summaries |
+| **Bilingual Reports** | Every digest includes both Traditional Chinese (繁體中文) and English versions |
+| **Automated Archiving** | Reports saved to `medium_digest_output/medium_digest_<YYYY-MM-DD>/digest.md` |
+| **Email Delivery** | Optional SMTP delivery via a customizable Python script |
+
+---
 
 ## Directory Structure
 
 ```
 medium-tech-digest/
-├── SKILL.md          # Core instructions and logic
-├── README.md         # This documentation
+├── SKILL.md                     # Core agent instructions and workflow logic
+├── README.md                    # This file (English)
+├── README_TW.md                 # Documentation in Traditional Chinese
 └── scripts/
-    └── send_email_template.py  # Reference for email delivery
+    └── send_email_template.py   # Reference script for email delivery
 ```
 
-## How to Use
+---
 
-Simply ask the Antigravity agent to run the tech digest.
+## Usage
 
-**Example Prompts**:
-- "Run the Medium tech digest for this week."
-- "Give me a summary of recent AI news from Medium."
-- "幫我收集最近一週 Medium 上的技術文章並寄信給我。"
+Ask the Antigravity agent using any of these prompts:
 
-## Workflow Details
+```
+Run the Medium tech digest for this week.
+Give me a summary of recent AI news from Medium.
+Collect top Medium articles and email them to me.
+幫我收集最近一週 Medium 上的技術文章並寄信給我。
+```
 
-1. **Search**: The agent performs targeted searches on Medium with clap-count and freshness filters.
-2. **Filter**: Articles are selected based on relevance, quality, and publication date.
-3. **Summarize**: The agent reads the full content of selected articles and creates structured summaries (Core Concept, Key Takeaway, Application).
-4. **Output**: A Markdown report is generated as `digest.md` in the archive folder.
-5. **Notify/Email**: The agent informs the user of the new digest and, if requested, sends it via email.
+---
 
-## Output Location
+## Workflow Summary
+
+```
+Search Medium (5 categories)
+    ↓
+Filter: top 3 articles per category (recency + quality + depth)
+    ↓
+Summarize: Core Concept · Key Takeaway · Practical Application
+    ↓
+Compile: bilingual Markdown report (繁體中文 → English)
+    ↓
+Archive: medium_digest_output/medium_digest_<YYYY-MM-DD>/digest.md
+    ↓
+[Optional] Email delivery via send_email_template.py
+```
+
+---
+
+## Article Categories
+
+| Category | Key Topics |
+|:---|:---|
+| Core AI & LLMs | LLM, GPT, Claude, Gemini, Transformer, RAG, GenAI, Fine-tuning |
+| Dev + AI Integration | LangChain, LlamaIndex, Vercel AI SDK, MCP, AI Agent, React AI |
+| New Libraries & Tools | Open source releases, npm/PyPI packages, SDKs, CLI tools |
+| Architecture & Systems | System design, microservices, scalability, observability, infra |
+| Cross-Domain AI | AI in Biology, Finance, Art, Music, Healthcare, Science |
+
+---
+
+## Output Format
+
+Each article summary follows this structure:
+
+```markdown
+### [Article Title](URL)
+> *Author · Publication · Date*
+
+**Core Concept**: One sentence on the main idea or technology.
+
+**Key Takeaway**: Why it matters — breakthrough, efficiency gain, or new capability.
+
+**Practical Application**: How a developer or team can apply this today.
+```
 
 Reports are saved to:
-`medium_digest_output/medium_digest_<YYYY-MM-DD>/digest.md`
+
+```
+medium_digest_output/
+└── medium_digest_2026-03-09/
+    └── digest.md
+```
+
+---
+
+## Email Delivery Setup
+
+To use email delivery, set the following environment variables before running the agent:
+
+```bash
+export EMAIL_USER="you@gmail.com"
+export EMAIL_PASS="your-app-password"    # Gmail App Password, not your account password
+export EMAIL_RECIPIENT="recipient@example.com"
+```
+
+Then ask the agent:
+
+```
+Send the digest to my email.
+```
+
+The agent will reference `scripts/send_email_template.py` to generate and run a customized send script.
+
+> **Note**: For Gmail, you must use an [App Password](https://support.google.com/accounts/answer/185833), not your regular account password.
+
+---
+
+## Customization
+
+You can modify `SKILL.md` to adjust:
+
+- **Search window**: Change `when:7d` to `when:30d` for monthly digests.
+- **Articles per category**: Default is 3; increase or decrease as needed.
+- **Preferred publications**: Add trusted Medium publications to prioritize quality sources.
+- **Language preference**: Swap language order or add additional languages.

@@ -1,68 +1,154 @@
 ---
 name: medium-tech-digest
-description: Use when the user wants a digest of top Medium tech articles (AI, Frontend/Backend, Cross-domain) from the past 7 days emailed to them.
+description: Use when the user wants a digest of top Medium tech articles (AI, Frontend/Backend, New Libraries, Cross-domain, Architecture) from the past 7 days, with optional email delivery.
 ---
 
 # Medium Tech Digest
 
 ## Overview
-This skill guides the agent to fetch, summarize, and email a weekly digest of top Medium articles. It covers AI technology, practical dev integration, technical breakthroughs, new libraries, and cross-domain AI applications.
+This skill guides the agent to fetch, summarize, and optionally email a weekly digest of top Medium articles. It covers AI technology, practical dev integration, technical breakthroughs, new libraries, and cross-domain AI applications.
 
 ## When to Use
-- User asks for "recent top Medium articles".
-- User wants a "tech digest" or "summary of AI news".
-- User specifically mentions collecting articles and emailing them.
+- User asks for "recent top Medium articles" or "tech digest".
+- User wants a "summary of AI/tech news from Medium".
+- User mentions collecting articles and sending them by email.
+- User says "幫我整理 Medium 技術文章" or similar.
 
 **When NOT to use:**
 - User asks for general web search (use `search_web` directly).
 - User wants deep technical debugging of a specific library.
+- User wants news from sources other than Medium.
+
+---
 
 ## Workflow
 
-### 1. Search Strategy
-Use `search_web` with the following queries (adjust dates to "past 7 days"):
-*   `site:medium.com "Artificial Intelligence" OR "LLM" OR "Transformer" min_claps:500 when:7d`
-*   `site:medium.com "Frontend" OR "Backend" AND "AI" when:7d`
-*   `site:medium.com "technical breakthrough" OR "architecture" when:7d`
-*   `site:medium.com "new library" OR "release" programming when:7d`
-*   `site:medium.com "AI" AND ("Art" OR "Biology" OR "Finance" OR "Music" OR "Science") when:7d` (Cross-domain)
+### Step 1 — Search Strategy
 
-### 2. Filtering Criteria
-Select 3 articles per category based on:
-- **Relevance**: Matches the specific category (e.g., truly "cross-domain").
-- **Quality**: High clap count (if visible), trusted publications (e.g., Towards Data Science), or clear technical depth.
-- **Freshness**: Must be published within the last 7 days.
+Use `search_web` with the following queries. Replace `7d` with the appropriate recency window (default: 7 days).
 
-### 3. Summarization
-For each of the selected articles (3 per category):
-1.  **Read Content**: Use `read_url_content` (or `read_browser_page` if behind a check) to fetch the **full text** of the article. Do not rely on search snippets.
-2.  **Generate Summary**: Create a concise summary covering:
-    - **Core Concept**: What is the main idea/tech?
-    - **Key Takeway**: Why is it important? (Breakthrough, efficiency, new capability)
-    - **Application**: How can it be used?
+| Category | Query |
+|:---|:---|
+| Core AI & LLMs | `site:medium.com ("LLM" OR "Large Language Model" OR "RAG" OR "Transformer" OR "GenAI") when:7d` |
+| Dev + AI Integration | `site:medium.com ("LangChain" OR "Vercel AI SDK" OR "React AI" OR "AI agent" OR "MCP") when:7d` |
+| New Libraries & Tools | `site:medium.com ("new release" OR "open source" OR "just released") programming when:7d` |
+| Architecture & Systems | `site:medium.com ("system design" OR "architecture" OR "technical deep dive" OR "engineering") when:7d` |
+| Cross-Domain AI | `site:medium.com "AI" AND ("Biology" OR "Finance" OR "Art" OR "Music" OR "Science" OR "Healthcare") when:7d` |
 
-### 4. Delivery & Archiving
-1.  **Generate Report**: Compile the summaries into a a Markdown report.
-    -   **Requirement**: Provide the content in **Traditional Chinese (繁體中文)** first, followed by the **English** version.
-2.  **Create Archive Folder**: 
-    -   Ensure main output folder exists: `medium_digest_output/`
-    -   Create timestamped subfolder: `medium_digest_output/medium_digest_<YYYY-MM-DD>` (use current date).
-3.  **Save Report**: Save the bilingual report as `medium_digest_output/medium_digest_<YYYY-MM-DD>/digest.md`.
-4.  **Email (Optional)**:
-    -   Use the `scripts/send_email_template.py` as a reference to generate a customized script.
-    -   Read the content from the saved `digest.md` file.
-    -   **Ask the user** for their email credentials/settings if not already provided.
-    -   Run the email script to send the digest.
+**Search tips:**
+- Prefer results from trusted publications: *Towards Data Science*, *Better Programming*, *Level Up Coding*, *The Startup*.
+- If a query returns fewer than 3 usable results, broaden the date window to `30d`.
+- Never fabricate URLs — only use links returned by the search tool.
+
+---
+
+### Step 2 — Filtering Criteria
+
+Select **3 articles per category** (15 total) based on:
+
+1. **Relevance**: Clearly matches the category topic.
+2. **Quality signals**: High clap count (if visible), reputable publication, clear author credentials.
+3. **Freshness**: Published within the last 7 days (verify date in article metadata or URL).
+4. **Depth**: Prefers articles with code examples, benchmarks, diagrams, or novel insights over listicles.
+
+> If a category yields fewer than 3 qualifying articles, reduce to 1–2 and note it in the report.
+
+---
+
+### Step 3 — Summarization
+
+For each selected article:
+
+1. **Fetch full content**: Use `read_url_content` to retrieve the full article text.
+   - If blocked by a paywall or bot-check, use `read_browser_page` as fallback.
+   - Do **not** rely on search snippets for summarization.
+
+2. **Generate a structured summary** using this format:
+
+```
+### [Article Title](URL)
+> *Author · Publication · Date*
+
+**Core Concept**: One sentence describing the main idea or technology.
+
+**Key Takeaway**: Why it matters — breakthrough, efficiency gain, new capability, or paradigm shift.
+
+**Practical Application**: How a developer or team can apply this today.
+```
+
+---
+
+### Step 4 — Compile Report
+
+Assemble all summaries into a single Markdown report using this structure:
+
+```markdown
+# 📰 Medium Tech Digest — YYYY-MM-DD
+
+## 🤖 Core AI & LLMs
+[3 summaries]
+
+## 🛠️ Dev + AI Integration
+[3 summaries]
+
+## 📦 New Libraries & Tools
+[3 summaries]
+
+## 🏗️ Architecture & Systems
+[3 summaries]
+
+## 🌐 Cross-Domain AI
+[3 summaries]
+
+---
+*Report generated on YYYY-MM-DD. Articles sourced from Medium.*
+```
+
+**Language requirement**: Write the **Traditional Chinese (繁體中文)** version first, then append the **English** version in the same file, separated by a horizontal rule (`---`).
+
+---
+
+### Step 5 — Archive Report
+
+1. Ensure the base output folder exists: `medium_digest_output/`
+2. Create a timestamped subfolder: `medium_digest_output/medium_digest_<YYYY-MM-DD>/`
+3. Save the report as: `medium_digest_output/medium_digest_<YYYY-MM-DD>/digest.md`
+
+---
+
+### Step 6 — Email Delivery (Optional)
+
+Only proceed if the user explicitly requests email delivery.
+
+1. Reference `scripts/send_email_template.py` to generate a customized send script.
+2. Read content from the saved `digest.md`.
+3. **Ask the user** for missing credentials if not already set via environment variables:
+   - `EMAIL_USER` — sender email address
+   - `EMAIL_PASS` — app password (not account password)
+   - `EMAIL_RECIPIENT` — recipient address
+4. Run the generated script to send the digest.
+5. Confirm delivery success or surface the error to the user.
+
+---
 
 ## Quick Reference
-| Category | Keywords |
+
+| Category | Key Terms |
 |:---|:---|
-| Core AI | LLM, Transformer, RAG, GenAI |
-| Dev + AI | Vercel SDK, LangChain, React AI |
-| Cross-Domain | AI in Bio, AI Art, FinTech AI |
+| Core AI & LLMs | LLM, GPT, Claude, Gemini, Transformer, RAG, GenAI, Fine-tuning |
+| Dev + AI | LangChain, LlamaIndex, Vercel AI SDK, MCP, AI Agent, React AI |
+| Libraries & Tools | open source, release, npm, PyPI, CLI tool, SDK |
+| Architecture | system design, microservices, scalability, observability, infra |
+| Cross-Domain | AI + Bio, AI + Finance, AI + Art, AI + Healthcare |
+
+---
 
 ## Common Mistakes
-- **Mistake**: Fetching generic news articles instead of technical Medium posts.
-    - **Fix**: Enforce `site:medium.com` and look for "Towards Data Science" or similar tags.
-- **Mistake**: Hallucinating links.
-    - **Fix**: ONLY use URLs returned by the search tool.
+
+| Mistake | Fix |
+|:---|:---|
+| Fetching generic news instead of technical Medium posts | Enforce `site:medium.com` and prefer known publications |
+| Hallucinating article links | **Only** use URLs returned by the search tool |
+| Summarizing from snippets without reading full content | Always call `read_url_content` or `read_browser_page` |
+| Missing the bilingual requirement | Generate 繁體中文 section first, English section second |
+| Typo "Key Takeway" | Correct spelling is "Key Takeaway" |

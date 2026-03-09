@@ -49,4 +49,4 @@
 ## v1.0.0 — 2026-02-25
 - **Trigger**: 首次建立資安檢查方法論
 - **Changes**: Phase 0–9 完整流程（前端為主）
-- **Source**: african-golden-cat (React SPA) 審核經驗
+- **Source**: project-name (React SPA) 審核經驗
