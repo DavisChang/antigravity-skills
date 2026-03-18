@@ -137,6 +137,24 @@ Perform endpoint security testing, penetration testing, defense analysis, and EU
 Ask the agent: "Perform an endpoint security test on this project"
 ```
 
+### 8. skill-security-auditor
+**Location**: `.agent/skills/skill-security-auditor/`
+
+Statically review any AI agent skill for security risks before installation or execution.
+
+**Use when**: You need to audit a third-party AI agent skill, MCP config, Cursor rule, or AGENTS.md for safety and security.
+
+**Features**:
+- Detects prompt injection, malicious payloads, and supply-chain risks
+- Identifies secret/host data exfiltration and over-privileged configurations
+- Supports multiple formats: Antigravity/Cursor/Codex/Gemini skills, MCP config, AGENTS.md
+- Provides actionable findings, severity ratings, and a clear safety verdict
+
+**Quick Start**:
+```text
+Ask the agent: "Audit this skill for security risks"
+```
+
 ## Repository Structure
 
 ```
@@ -165,9 +183,14 @@ antigravity-skills/
 │       │   ├── SKILL.md
 │       │   ├── scripts/
 │       │   └── references/
-│       └── security-defense/
+│       ├── security-defense/
+│       │   ├── SKILL.md
+│       │   └── references/
+│       └── skill-security-auditor/
 │           ├── SKILL.md
-│           └── references/
+│           ├── README.md
+│           └── README_TW.md
+├── search_medium.py
 └── medium_digest_output/
     └── ...
 ```

@@ -25,7 +25,9 @@ This skill guides the agent to fetch, summarize, and optionally email a weekly d
 
 ### Step 1 — Search Strategy
 
-Use `search_web` with the following queries. Replace `7d` with the appropriate recency window (default: 7 days).
+Execute the `scripts/search_medium.py` script with the following queries to fetch Medium article URLs reliably. Replace `7d` with the appropriate recency window (default: 7 days) if needed.
+
+Example: `python .agent/skills/medium-tech-digest/scripts/search_medium.py 'site:medium.com ("LLM" OR "GenAI") when:7d' --limit 10`
 
 | Category | Query |
 |:---|:---|
@@ -38,7 +40,7 @@ Use `search_web` with the following queries. Replace `7d` with the appropriate r
 **Search tips:**
 - Prefer results from trusted publications: *Towards Data Science*, *Better Programming*, *Level Up Coding*, *The Startup*.
 - If a query returns fewer than 3 usable results, broaden the date window to `30d`.
-- Never fabricate URLs — only use links returned by the search tool.
+- Never fabricate URLs — only use links returned by the script.
 
 ---
 
@@ -59,9 +61,9 @@ Select **3 articles per category** (15 total) based on:
 
 For each selected article:
 
-1. **Fetch full content**: Use `read_url_content` to retrieve the full article text.
-   - If blocked by a paywall or bot-check, use `read_browser_page` as fallback.
-   - Do **not** rely on search snippets for summarization.
+1. **Fetch full content**: Execute the `scripts/fetch_articles.py` script to retrieve the full article text and bypass Medium's strict Cloudflare protection.
+   - Example: `python .agent/skills/medium-tech-digest/scripts/fetch_articles.py 'https://medium.com/...' 'https://medium.com/...'`
+   - This script briefly launches a real Chrome browser to extract the content safely. Do **not** use `read_url_content` as it will fail with 403 Forbidden.
 
 2. **Generate a structured summary** using this format:
 
