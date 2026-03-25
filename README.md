@@ -155,6 +155,59 @@ Statically review any AI agent skill for security risks before installation or e
 Ask the agent: "Audit this skill for security risks"
 ```
 
+### 9. ai-judge
+**Location**: `.agent/skills/ai-judge/`
+
+Multi-AI Judge System that orchestrates multiple models to compare approaches, generate candidates, validate with programmatic gates, and judge with rubrics.
+
+**Use when**: You need to compare system designs, architectures, or get a best-of-N evaluated answer for complex tasks.
+
+**Features**:
+- Orchestrates multiple AI candidates to solve the same problem
+- Employs validation gates and AI judging with rubrics
+- Merges best features from various candidates into a refined architecture
+- Systematic phasing (basic info → taskspec → rubric → candidates → validation → judgment → refined)
+
+**Quick Start**:
+```text
+Ask the agent: "AI judge these architectural approaches for a worker queue"
+```
+
+### 10. figma-readiness-audit
+**Location**: `.agent/skills/figma-readiness-audit/`
+
+Analyze Figma designs via MCP to assess code-generation readiness across platforms.
+
+**Use when**: You provide a Figma URL and want to know design quality, readiness, or handoff completeness for web/mobile engineering.
+
+**Features**:
+- Designer-friendly report quantifying evidence of readiness
+- Actionable Figma fix steps for the design team
+- Per-platform Level A/B/C ratings for Web, Flutter, and Windows
+- Evaluates design-engineering alignment and ambiguity
+
+**Quick Start**:
+```text
+Ask the agent: "Audit this Figma URL for dev readiness"
+```
+
+### 11. scrum-retro
+**Location**: `.agent/skills/scrum-retro/`
+
+Facilitates Scrum retrospectives by organizing raw data into structured Improvement Logs.
+
+**Use when**: You have raw retro notes, observations, or sticky notes and need to organize or summarize a sprint retrospective.
+
+**Features**:
+- Turns chaotic notes into actionable Improvement Log entries
+- Identifies themes, owners, metrics, and actionable experiments
+- Provides structured tracking for sprint improvements
+
+**Quick Start**:
+```text
+Ask the agent: "Summarize these sprint retro notes into an improvement log"
+```
+
 ## Repository Structure
 
 ```
@@ -186,10 +239,20 @@ antigravity-skills/
 │       ├── security-defense/
 │       │   ├── SKILL.md
 │       │   └── references/
-│       └── skill-security-auditor/
+│       ├── skill-security-auditor/
+│       │   ├── SKILL.md
+│       │   ├── README.md
+│       │   └── README_TW.md
+│       ├── ai-judge/
+│       │   ├── SKILL.md
+│       │   ├── README.md
+│       │   └── examples/
+│       ├── figma-readiness-audit/
+│       │   ├── SKILL.md
+│       │   └── README.md
+│       └── scrum-retro/
 │           ├── SKILL.md
-│           ├── README.md
-│           └── README_TW.md
+│           └── references/
 ├── search_medium.py
 └── medium_digest_output/
     └── ...

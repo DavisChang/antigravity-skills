@@ -1,0 +1,28 @@
+{
+  "task_id": "task_pptx_queue_001",
+  "task_type": "architecture",
+  "problem_statement": "Provide a PPTX conversion service for users using scheduled and background workers on AWS EKS; conversions may fail, so we need to retain logs, be able to modify code and rerun, and provide a complete deployment plan.",
+  "constraints": [
+    "Execution environment: AWS EKS",
+    "Nature of work: Schedule-driven (can include manual rerun)",
+    "Workload: PPTX → other formats, long-running, error-prone",
+    "Must be auditable: Status and history logs",
+    "Must be re-executable: Includes rerun semantics after code fixes",
+    "Needs complete deployment (Runnable on EKS)"
+  ],
+  "deliverables": [
+    "architecture",
+    "deployment_notes",
+    "job_state_and_audit_model",
+    "scheduling_and_queue_design",
+    "risks"
+  ],
+  "acceptance_criteria": [
+    "Task and step status persisted and queryable (who, when, which version, which input artifact)",
+    "Failures can be retried; poison messages/duplicate processing are defined (idempotency / DLQ)",
+    "Clear paths for scheduled (cron/event) and manual rerun/makeup run",
+    "Deployment includes the minimal closed loop of queue, worker, scheduler, storage, and observability on EKS",
+    "Can explain 'how to rerun after code modification': the relationship between the new version workflow and old tasks"
+  ],
+  "risk_level": "medium"
+}

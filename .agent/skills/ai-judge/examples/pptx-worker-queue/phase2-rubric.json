@@ -1,0 +1,20 @@
+{
+  "rubric_version": "v1",
+  "task_context": "architecture — worker queue for scheduled PPTX conversion on AWS EKS",
+  "criteria": [
+    {"name": "correctness",     "weight": 0.28, "note": "Queue semantics are correct (at-least-once delivery, retry, state machine)"},
+    {"name": "completeness",    "weight": 0.22, "note": "Covers scheduling, rerun, logging, deployment, observability"},
+    {"name": "security",        "weight": 0.18, "note": "IAM, network, secrets, tenant isolation"},
+    {"name": "feasibility",     "weight": 0.17, "note": "Implementable and operable on AWS / EKS"},
+    {"name": "maintainability", "weight": 0.10},
+    {"name": "clarity",         "weight": 0.05}
+  ],
+  "hard_gates": [
+    "covers: persistent_job_state",
+    "covers: retry_and_dlq",
+    "covers: scheduling",
+    "covers: eks_deployment",
+    "covers: rerun_semantics"
+  ],
+  "note": "This is an architecture task; hard gates are requirement-coverage checks, not programmatic build/test gates."
+}
