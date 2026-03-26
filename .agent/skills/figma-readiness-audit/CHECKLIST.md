@@ -13,27 +13,66 @@ Each Tier 1 dimension gets one rating:
 
 ---
 
-## Tier 0 — DS Layer Positioning
+## Tier 0 — DS Layer Positioning + Component Decomposition
 
-Before scoring Tier 1, determine the DS layer. This affects which dimensions
-are required vs optional.
+Before scoring Tier 1, determine the DS layer of the overall design **and**
+classify every identifiable sub-element. This affects which dimensions are
+required vs optional, and produces the "DS Composition Analysis" section.
 
-### Decision Tree
+### Decision Tree (run on overall design AND on each sub-element)
 
-1. Is this a **global visual rule** (color, spacing, type scale, radius)?
-   → Layer 1: Tokens/Foundations
-2. Is this a **single structural primitive** with no business semantics?
-   → Layer 2: Primitives
-3. Is this a **single interactive unit** (Button, Input, Modal)?
-   - Reusable across products, no business logic? → Layer 3: Core Component
-   - Product-specific? → Layer 6: Product Module
-4. Does it solve a **complete user task or flow**?
-   - Reusable across products? → Layer 4: Pattern
-   - Product-specific? → Layer 6: Product Module
-5. Is it a **page skeleton or information layout**?
-   → Layer 5: Template
-6. Still exploring, not yet stable?
-   → Layer 7: Experiment/Local
+Ask these questions **in order**:
+
+1. **Is it a global visual rule or foundational design value?**
+   (color palette, spacing scale, type ramp, radius set, shadow definition, motion curve)
+   → **Yes → Layer 1: Foundations / Tokens**
+   → No → next question
+
+2. **Is it a single interactive unit?**
+   (Button, Input, Checkbox, Tabs, Modal, Tooltip, Select, Badge, Avatar)
+   → **Yes →** Ask: *Can it be reused across multiple products, without
+     depending on specific business logic?*
+     - Yes → **Layer 3: Core Component** — check if it already exists in the DS
+     - No → **Layer 6: Product / Domain Component**
+   → No → next question
+
+3. **Does it solve a complete user task or multi-step flow?**
+   (filter + results list, batch operation, form wizard, upload flow, approval process)
+   → **Yes →** Ask: *Can this flow be reused across products?*
+     - Yes → **Layer 4: Pattern**
+     - No → **Layer 6: Product Module / Local Pattern**
+   → No → next question
+
+4. **Is it a page skeleton or information layout?**
+   (dashboard shell, list-detail layout, settings page, create/edit page)
+   → **Yes → Layer 5: Template**
+   → No → next question
+
+5. **Is it still exploratory or unstable?**
+   → **Yes → Layer 7: Experiment / Local**
+   → **No → Re-decompose**: the element likely combines multiple layers.
+     Break it down further and re-run the tree on each piece.
+
+### Supplementary Judgment Questions
+
+When the decision tree alone is not conclusive, ask these:
+
+| Letter | Question | If Yes | If No |
+|--------|----------|--------|-------|
+| A | Does it carry product-specific business semantics? | Product / Domain layer | Candidate for Core DS |
+| B | Has it been validated in 2+ distinct contexts? | Ready for DS promotion | Keep in local / experiment |
+| C | Can it be named in abstract, product-agnostic language? | Suitable for DS | Likely a product module |
+| D | Is engineering willing to maintain it as a shared dependency? | Can enter DS | Stay local for now |
+
+### Core DS Entry Criteria
+
+An element should enter the core design system only when **most** of these hold:
+
+- **High reuse** — needed by 2+ products or 3+ distinct screens
+- **Low business coupling** — no domain-specific logic baked in
+- **Stable structure** — API / props / variants unlikely to churn
+- **Abstract naming** — name makes sense outside any single product
+- **Central maintenance** — a DS team or designated owner exists
 
 ### Dimension Applicability by Layer
 
@@ -49,6 +88,7 @@ are required vs optional.
 | D8 Code Connect | ⬜ Skip | ⬜ Skip | Bonus | Bonus | ⬜ Skip | ⬜ Skip | ⬜ Skip |
 | D9 Token Syntax | Bonus | ⬜ Skip | Bonus | ⬜ Skip | ⬜ Skip | ⬜ Skip | ⬜ Skip |
 | D10 A11y | Required | ⬜ Skip | Required | Required | Required | 🟡 Relaxed | ⬜ Skip |
+| D11 Composition | ⬜ Skip | ⬜ Skip | Required | Required | Required | Required | ⬜ Skip |
 
 ---
 
@@ -241,6 +281,50 @@ Required states (check all that apply to the component type):
 
 ---
 
+### D11 Component Composition
+
+**MCP Evidence**: `get_design_context` component instances + Code Connect mappings;
+`use_figma` component instance count vs total element count
+
+Checks whether the design is **composed from DS components** rather than built
+ad-hoc from raw shapes and text. This is the highest-leverage dimension for
+implementation quality: a design that uses DS components translates directly
+to DS code, while a design built from raw elements forces engineers to
+re-discover and hand-style every control.
+
+**What to check:**
+
+1. **DS component reuse** — Are standard controls (Button, Badge, Select, Input, Chip)
+   instances of a DS component, or are they assembled from rectangles + text?
+2. **DS gap identification** — For elements that look like standard controls but are NOT
+   DS instances: should a new DS component be created? Run the decision tree.
+3. **Behavior encapsulation** — Are interaction states (hover, disabled, focus) defined
+   at the component level (as Variants), or implicitly expected per-page?
+4. **Consistent usage** — Are all buttons of the same semantic type using the same DS
+   component, or are there visual duplicates built differently?
+
+| Rating | Condition |
+|--------|-----------|
+| 🔴 Blocker | > 50% of identifiable UI controls are raw shapes, not component instances; engineers must invent component boundaries |
+| 🟡 Ambiguity | Some controls use DS components, but common elements (e.g. buttons, badges) are ad-hoc in places; inconsistent usage of same control |
+| 🟢 Clear | ≥ 80% of standard controls are DS component instances; gaps identified with decision-tree classification and creation plan |
+
+**Designer fix guidance**:
+1. For every button, badge, select, input, chip, and card in the design: check if
+   it is an instance of a DS component (indicated by the diamond icon ◆ in Figma)
+2. If it is a raw shape + text assembly, swap it for the DS component instance
+3. If no DS component exists yet, run the decision tree:
+   - Single interactive unit + reusable across products → propose as Core Component
+   - Product-specific → keep as Product Component, but still make it a local component
+4. Ensure all interactive states are defined as Variants on the component, not as
+   separate ad-hoc frames
+5. Run the supplementary judgment questions (A–D) for any element on the boundary
+
+**Report output**: Populate the "DS Composition Analysis" table with one row per
+identifiable UI element, including the decision tree result and recommended action.
+
+---
+
 ## Tier 2 — Platform Level Upgrade/Downgrade Rules
 
 ### Level Definitions (Designer Language)
@@ -276,7 +360,7 @@ Required states (check all that apply to the component type):
 
 ---
 
-## Self-Check Checklist (18 items)
+## Self-Check Checklist (23 items)
 
 Designers can use this before requesting an audit:
 
@@ -286,6 +370,13 @@ Designers can use this before requesting an audit:
 - [ ] At least main states defined: default / hover / disabled / selected / loading
 - [ ] Important content sections have source labels (CMS / API / static / brand asset)
 - [ ] Important images/brand assets have source annotations
+
+### Component Composition (D11)
+- [ ] Every button / badge / select / input in the design is a DS component instance (◆ icon)
+- [ ] No "visual duplicates" — same control type always uses the same DS component
+- [ ] Elements not yet in the DS have been classified via the decision tree
+- [ ] Interactive states (hover, disabled, focus) are Variants on the component, not ad-hoc per-page
+- [ ] DS gaps have a documented plan: promote to Core / extend existing / keep in Product layer
 
 ### Annotations & Handoff
 - [ ] Complex interactions have annotations explaining switch conditions

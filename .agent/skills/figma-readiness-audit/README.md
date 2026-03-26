@@ -22,6 +22,7 @@ It runs a structured analysis of any Figma design using Figma MCP tools, then ou
 2. **Explains why it matters** — in designer language, not code jargon
 3. **Gives Figma fix steps** — click here, select this, done
 4. **Rates each platform** — Web can reach Level A, Flutter B, Windows C
+5. **Classifies every element** — runs a DS decision tree to tell you where each piece belongs
 
 ---
 
@@ -53,10 +54,10 @@ Figma URL
 | Phase 2: Three-Tier       |
 |   Analysis                |
 |                           |
-|  Tier 0: DS Layer (Token? |
-|    Component? Pattern?)   |
+|  Tier 0: DS Layer +       |
+|    Decision Tree decomp   |
 |  Tier 1: Design System    |
-|    Quality (10 dims)      |
+|    Quality (11 dims)      |
 |  Tier 2: Platform Level   |
 |    (A / B / C)            |
 +---------------------------+
@@ -64,6 +65,7 @@ Figma URL
     v
 +---------------------------+
 | Phase 3: Report           |
+|  - DS Composition table   |
 |  - Designer action items  |
 |  - Evidence per finding   |
 |  - Figma fix steps        |
@@ -89,9 +91,11 @@ Typical targets:
 
 ---
 
-## DS Layer Positioning
+## DS Layer Positioning + Decision Tree
 
-The audit first determines where your design sits in the Design System hierarchy (layers 1–7). This changes which checks apply:
+The audit first determines where your design sits in the Design System hierarchy
+(layers 1–7), then **decomposes every sub-element** through a decision tree.
+This changes which checks apply and produces a "DS Composition Analysis" table.
 
 | Layer | What | Audit Focus |
 |-------|------|-------------|
@@ -102,6 +106,31 @@ The audit first determines where your design sits in the Design System hierarchy
 | 5 Templates | Dashboard, List-detail | Page skeleton, content zones |
 | 6 Product Modules | Domain-specific | Spec completeness (relaxed bar) |
 | 7 Experiment | Exploration drafts | Use Figma Make first, then audit |
+
+### Decision Tree (per element)
+
+For every identifiable UI element, the audit asks:
+
+1. **Global visual rule?** → Foundations / Tokens
+2. **Single interactive unit?**
+   - Reusable, no business logic → Core Component
+   - Product-specific → Product Component
+3. **Complete task/flow?**
+   - Cross-product → Pattern
+   - Product-only → Product Module
+4. **Page skeleton?** → Template
+5. **Still exploring?** → Experiment / Local
+
+Supplementary checks: business semantics? validated in 2+ contexts? abstract naming? engineering willing to maintain?
+
+This produces a per-element table in the report showing what each piece is, whether it exists in the DS, and the recommended action (use existing, extend, create new, keep local).
+
+### Why This Matters
+
+When a design uses raw rectangles + text to build what is effectively a "Button",
+engineers must re-discover the component boundary, guess the hover/disabled behavior,
+and hand-style each variant. Multiplied across platforms, this creates divergence.
+The decision tree helps designers think about component composition **before** handoff.
 
 ---
 
@@ -182,10 +211,12 @@ figma-readiness-audit (this skill)
 **DS quality**:
 - "Which DS layer does this belong to?"
 - "Are my token names reasonable?"
+- "Should this be a DS component or a product component?"
+- "Is this design composed from DS components?"
 
 ---
 
-## Self-Check Checklist (18 items)
+## Self-Check Checklist (23 items)
 
 Before requesting an audit, designers can self-check:
 
@@ -195,6 +226,13 @@ Before requesting an audit, designers can self-check:
 - [ ] At least main states defined: default / hover / disabled / selected / loading
 - [ ] Important content sections have source labels (CMS / API / static / brand asset)
 - [ ] Important images/brand assets have source annotations
+
+### Component Composition (D11)
+- [ ] Every button / badge / select / input is a DS component instance (◆ icon)
+- [ ] No "visual duplicates" — same control type always uses the same DS component
+- [ ] Elements not yet in the DS have been classified via the decision tree
+- [ ] Interactive states are Variants on the component, not ad-hoc per-page
+- [ ] DS gaps have a documented plan: promote to Core / extend / keep in Product
 
 ### Annotations & Handoff
 - [ ] Complex interactions have annotations explaining conditions
@@ -240,6 +278,19 @@ validate interactions first, then re-running on the converged design.
 A: Primarily designers. The "Engineer Notes" section at the bottom is for
 engineers. Everything else is written in designer language.
 
+**Q: What is the DS Composition Analysis table?**
+A: A new section that lists every identifiable UI element in the design, runs
+it through the DS decision tree, checks whether it exists in the DS, and
+recommends an action (use existing component, extend one, create new, or keep
+in product layer). This helps designers think about component reuse before
+handoff and prevents engineers from re-inventing components ad-hoc.
+
+**Q: What is D11 Component Composition?**
+A: A new dimension that checks whether the design is composed from DS
+components or built from raw shapes. Designs that use DS component instances
+generate better code because engineers can map them directly to existing
+components instead of guessing.
+
 ---
 
 ## Files
@@ -247,6 +298,6 @@ engineers. Everything else is written in designer language.
 | File | Purpose |
 |------|---------|
 | [SKILL.md](SKILL.md) | Main workflow (< 500 lines) |
-| [CHECKLIST.md](CHECKLIST.md) | Detailed scoring rules, Level conditions, 18-item self-check |
+| [CHECKLIST.md](CHECKLIST.md) | Detailed scoring rules, Level conditions, 23-item self-check |
 | [README.md](README.md) | This file (English) |
 | [README_TW.md](README_TW.md) | Traditional Chinese version |

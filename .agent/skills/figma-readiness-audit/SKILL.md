@@ -3,13 +3,16 @@ name: figma-readiness-audit
 description: >-
   Analyze Figma designs via MCP to assess code-generation readiness across
   platforms (Web / Flutter / Windows). Outputs a designer-friendly report with
-  quantified evidence, Figma fix steps, and per-platform Level A/B/C ratings.
+  quantified evidence, Figma fix steps, per-platform Level A/B/C ratings,
+  and a DS Composition Analysis that classifies every UI element through a
+  decision tree (Foundations → Component → Pattern → Template → Product Module).
   Primary audience is designers—helps them understand how their Figma decisions
   affect code composition and cross-platform consistency. Use when the user
   provides a Figma URL and asks about design quality, readiness, ambiguity,
-  handoff completeness, design-engineering alignment, DS audit, or mentions
-  "設計稿完整嗎", "夠不夠清楚", "有沒有模糊空間", "readiness", "Figma audit",
-  "設計一致性", "Ready for Dev".
+  handoff completeness, design-engineering alignment, DS audit, component
+  composition, or mentions "設計稿完整嗎", "夠不夠清楚", "有沒有模糊空間",
+  "readiness", "Figma audit", "設計一致性", "Ready for Dev",
+  "應該是 DS 元件嗎", "元件組成".
 ---
 
 # Figma Readiness Audit
@@ -50,7 +53,7 @@ the key child nodeIds and call `get_design_context` on those instead.
 ### Call 2 (mandatory): Consolidated Audit Script
 
 Run ONE `use_figma` call with this all-in-one script. It covers D1, D2, D3,
-D4, and D5 in a single execution, costing only 1 MCP call instead of 5:
+D4, D5, and D11 in a single execution, costing only 1 MCP call instead of 6:
 
 ```javascript
 // ── Scope: find the target node, audit descendants ──────────────────────
@@ -96,6 +99,21 @@ const absoluteSample = frames.filter(f => f.layoutMode === 'NONE')
 const texts = all.filter(n => n.type === 'TEXT');
 const styledTexts = texts.filter(t => t.textStyleId && t.textStyleId !== '');
 
+// D11: Component Composition — instance vs raw element ratio
+const instances = all.filter(n => n.type === 'INSTANCE');
+const interactiveTypes = ['INSTANCE', 'COMPONENT', 'COMPONENT_SET'];
+const nonInstanceInteractive = all.filter(n =>
+  !interactiveTypes.includes(n.type) &&
+  (n.name.toLowerCase().includes('button') ||
+   n.name.toLowerCase().includes('btn') ||
+   n.name.toLowerCase().includes('badge') ||
+   n.name.toLowerCase().includes('chip') ||
+   n.name.toLowerCase().includes('select') ||
+   n.name.toLowerCase().includes('input') ||
+   n.name.toLowerCase().includes('toggle') ||
+   n.name.toLowerCase().includes('tab'))
+).slice(0, 15).map(n => ({ id: n.id, name: n.name, type: n.type }));
+
 return {
   nodeInfo: { id: root.id, name: root.name, type: root.type,
     childCount: all.length },
@@ -110,7 +128,10 @@ return {
     coverage: frames.length ? `${Math.round(alFrames.length/frames.length*100)}%` : 'n/a',
     absoluteSample },
   d5_textStyles: { total: texts.length, styled: styledTexts.length,
-    coverage: texts.length ? `${Math.round(styledTexts.length/texts.length*100)}%` : 'n/a' }
+    coverage: texts.length ? `${Math.round(styledTexts.length/texts.length*100)}%` : 'n/a' },
+  d11_composition: { instanceCount: instances.length, totalElements: all.length,
+    instancePct: all.length ? `${Math.round(instances.length/all.length*100)}%` : 'n/a',
+    suspectedRawControls: nonInstanceInteractive }
 };
 ```
 
@@ -163,10 +184,13 @@ vs which are marked ⚠️ MCP unavailable (manual check recommended).
 
 ## Phase 2 — Three-Tier Analysis
 
-### Tier 0: DS Layer Positioning
+### Tier 0: DS Layer Positioning + Component Decomposition
 
-Before scoring, determine where this design sits in the DS hierarchy.
-This decides which Tier 1 dimensions apply.
+Before scoring, determine where this design sits in the DS hierarchy **and**
+identify what each sub-element should be. This decides which Tier 1 dimensions
+apply and produces the "DS Composition Analysis" section of the report.
+
+#### Step 0a — Classify the overall design
 
 | DS Layer | Examples | Audit Focus |
 |---|---|---|
@@ -183,7 +207,46 @@ content. If Layer 7, output a notice:
 > "This looks like an exploration draft. Consider using Figma Make to validate
 > interactions first, then re-run this audit on the converged design."
 
-### Tier 1: Design System Quality (10 dimensions)
+#### Step 0b — Decompose: run the DS Decision Tree on every sub-element
+
+For each identifiable UI element in the design, run through this decision
+sequence. The result tells designers **where each piece should live** and
+whether it already exists in the DS.
+
+**Decision sequence (ask in order):**
+
+1. **Is it a global visual rule?** (color value, spacing scale, type ramp, radius, shadow)
+   → Yes → **Foundations / Tokens**
+2. **Is it a single interactive unit?** (button, input, checkbox, select, modal, tooltip)
+   → Yes → Ask: *Can it be reused across multiple products without business logic?*
+     - Yes → **Core Component** (check if DS already has it)
+     - No → **Product / Domain Component**
+3. **Does it solve a complete user task or flow?** (filter panel, batch operation, upload flow)
+   → Yes → Ask: *Can it be reused across products?*
+     - Yes → **Pattern**
+     - No → **Product Module / Local Pattern**
+4. **Is it a page skeleton or information layout?** (dashboard, list-detail, settings page)
+   → Yes → **Template**
+5. **Is it still exploratory / unstable?**
+   → Yes → **Experiment / Local**
+   → No → Re-decompose: it is likely a combination of the above layers
+
+**Supplementary judgment questions:**
+
+| Question | If Yes | If No |
+|----------|--------|-------|
+| Does it carry product-specific business semantics? | Product / Domain layer | Candidate for Core DS |
+| Has it been validated in 2+ contexts? | Ready for system promotion | Keep in local / experiment |
+| Can it be named in abstract, product-agnostic language? | Suitable for DS | Likely a product module |
+| Is engineering willing to maintain it as shared? | Can enter DS | Stay local for now |
+
+**Core DS entry criteria** (must satisfy most):
+high reuse + low business coupling + stable structure + abstract naming + central team maintenance
+
+**Report output**: For every element identified, produce a row in the
+"DS Composition Analysis" table (see report template).
+
+### Tier 1: Design System Quality (11 dimensions)
 
 Score each: 🔴 Blocker / 🟡 Ambiguity / 🟢 Clear / ⬜ N/A (per DS layer)
 
@@ -234,6 +297,14 @@ Score each: 🔴 Blocker / 🟡 Ambiguity / 🟢 Clear / ⬜ N/A (per DS layer)
 **D10 Accessibility Foundations**
 - Color contrast meets WCAG AA (text 4.5:1, large 3:1)?
 - Focus state designed (not just hover)?
+
+**D11 Component Composition**
+- Design composed from existing DS components (not ad-hoc `<div>` soup)?
+- Elements that look like standard controls (Button, Badge, Select) use the DS version?
+- If no DS component exists, is the element a candidate for promotion (per decision tree)?
+- Behavior (hover, disabled, focus) delegated to component, not hand-styled per page?
+- Evidence: `get_design_context` Code Connect descriptions; compare element count
+  vs component instance count from `use_figma`
 
 ### Tier 2: Platform Readiness (Level A / B / C)
 
@@ -340,6 +411,26 @@ Explain how this Figma decision causes problems for engineers / across platforms
 | D8 Code Connect    | 🟢/⬜       | ...   |
 | D9 Token Syntax    | 🟢/⬜       | ...   |
 | D10 Accessibility  | 🔴/🟡/🟢/⬜ | ...   |
+| D11 Composition    | 🔴/🟡/🟢/⬜ | ...   |
+
+---
+
+## DS Composition Analysis
+
+> For each UI element identified in the design, classify where it should live
+> in the DS hierarchy and whether it already exists.
+
+| # | Element | Decision Tree Result | Exists in DS? | Action |
+|---|---------|---------------------|---------------|--------|
+| 1 | [e.g. Button/sm outlined] | Core Component | ✅ Yes / ❌ No / 🟡 Partial | [Use existing / Extend / Create new / Keep local] |
+| 2 | [e.g. Slide thumbnail] | Product Module | — | [Keep in product layer] |
+| ... | ... | ... | ... | ... |
+
+### Recommendations for DS Team
+- **Promote to Core**: [elements that passed Core DS entry criteria]
+- **Extend existing**: [elements that partially match an existing DS component]
+- **Keep in Product layer**: [elements with high business coupling]
+- **Defer (Experiment)**: [unstable elements needing more validation]
 
 ---
 
